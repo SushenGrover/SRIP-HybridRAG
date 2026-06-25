@@ -1,0 +1,10 @@
+{
+  "4ec93fc12bff": {
+    "filename": "ICICI_Pru_Future_Perfect_Valid_from_01102025_to_till_date_105N153V04.pdf",
+    "num_chunks": 72,
+    "num_triplets": 553,
+    "stored_in_neo4j": 553,
+    "processing_time_s": 252.4,
+    "uploaded_at": "2026-06-25 04:17:17"
+  }
+}

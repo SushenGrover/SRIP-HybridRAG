@@ -1,0 +1,20 @@
+question,vectorRAG_relevancy,graphRAG_relevancy,hybridRAG_relevancy
+What is the maximum air ambulance travel distance covered under the policy?,0.8616716,0.89675486,0.9066334
+What expenses are included under routine medical care for Well Mother cover?,0.8268704,0.74748945,0.8654329
+What preventive care services are covered for a newborn baby?,0.791727,0.712843,0.79763734
+Is infertility treatment covered under the Well Mother cover?,0.9266434,0.8304018,0.9565188
+What is the mode of payment for air ambulance claims?,0.8662517,0.82539684,0.82386756
+"If an insured person travels 300 km using an air ambulance, how much reimbursement will be paid?",0.9029268,0.63154805,0.8964043
+What happens if the air ambulance distance exceeds 150 km?,0.7203264,0.06910723,0.7461108
+Under what conditions will air ambulance services be approved?,0.63660026,0.7033293,0.67658454
+List all exclusions under the Air Ambulance Cover.,0.6524867,0.09520805,0.6947047
+What are the available coverage periods under the Well Mother cover?,0.8085828,0.03620389,0.8358946
+Does the policy cover transportation from hospital to home after discharge?,0.7620178,0.81687856,0.8239681
+Does the policy cover air ambulance expenses outside India?,0.85088694,0.87933266,0.8381276
+Will the insurer pay if treatment is available at the current hospital?,0.5812708,0.02576293,0.5764673
+Are unlawful acts covered under air ambulance claims?,0.8906386,0.86387485,0.91140866
+My newborn required diagnostic tests immediately after birth. Will these expenses be covered?,0.8887192,0.8581444,0.9088983
+Can I claim maternity hospitalization charges under Well Mother cover?,0.113879524,0.033165637,0.124066725
+Is road ambulance mandatory before air ambulance can be approved?,0.036130182,0.045741998,0.19345431
+What documents or medical justification are required for air ambulance approval?,0.12413506,0.066467546,0.14694843
+OVERALL MEAN,0.68009806,0.5076473,0.7068405

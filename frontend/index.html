@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="HybridRAG Financial Document Q&A" />
+    <title>HybridRAG</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- vis.js for knowledge graph visualization -->
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  </head>
+  <body>
+    <div class="toast-container" id="toastContainer"></div>
+    <div class="app-container">
+      <header class="app-header">
+        <h1>HybridRAG</h1>
+        <p class="subtitle">
+          Financial Document Q&A - Vector RAG · Graph RAG · Combined
+        </p>
+      </header>
+
+      <section class="upload-section" id="uploadSection">
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-icon">📄</div>
+          <p class="upload-text">Drop a file here</p>
+          <input type="file" id="fileInput" accept=".pdf" />
+        </div>
+        <div class="upload-progress" id="uploadProgress">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressFill"></div>
+          </div>
+          <p class="upload-status" id="uploadStatus">Processing document...</p>
+        </div>
+      </section>
+
+      <section class="documents-bar" id="documentsBar">
+        <span class="no-docs" id="noDocs">No documents uploaded yet</span>
+      </section>
+
+      <section class="query-section" id="querySection">
+        <div class="query-input-group">
+          <input
+            type="text"
+            class="query-input"
+            id="queryInput"
+            placeholder="Ask a question about the selected document"
+            disabled
+          />
+          <button class="query-btn" id="queryBtn" disabled>Ask Question</button>
+        </div>
+      </section>
+
+      <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-dots"><span></span><span></span><span></span></div>
+        <p class="loading-text" id="loadingText">
+          Searching documents and generating answer...
+        </p>
+      </div>
+
+      <section class="results-section" id="resultsSection">
+        <div class="results-grid">
+          <div class="result-card result-card--vector" id="vectorCard">
+            <div class="result-card__header">
+              <span class="result-card__title">Vector RAG</span>
+            </div>
+            <div class="result-card__body" id="vectorBody">
+              <div class="result-placeholder">Vector RAG results</div>
+            </div>
+            <div class="result-card__footer" id="vectorFooter">
+              <span id="vectorSources">—</span>
+              <span id="vectorTime">—</span>
+            </div>
+          </div>
+          <div class="result-card result-card--graph" id="graphCard">
+            <div class="result-card__header">
+              <span class="result-card__title">Graph RAG</span>
+            </div>
+            <div class="result-card__body" id="graphBody">
+              <div class="result-placeholder">Graph RAG results</div>
+            </div>
+            <div class="result-card__footer" id="graphFooter">
+              <span id="graphTriplets">—</span>
+              <span id="graphTime">—</span>
+            </div>
+          </div>
+          <div class="result-card result-card--combined" id="combinedCard">
+            <div class="result-card__header">
+              <span class="result-card__title">HybridRAG</span>
+            </div>
+            <div class="result-card__body" id="combinedBody">
+              <div class="result-placeholder">Combined Vector + Graph RAG</div>
+            </div>
+            <div class="result-card__footer">
+              <span id="combinedSources">—</span>
+              <span id="combinedTime">—</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════════════════════════════
+             Knowledge Graph Explorer
+             ════════════════════════════════════════════════ -->
+      <section class="kg-explorer" id="kgExplorer">
+        <div class="kg-explorer__header">
+          <h2 class="kg-explorer__title">
+            <span class="kg-explorer__icon">🔬</span>
+            Knowledge Graph Explorer
+          </h2>
+          <p class="kg-explorer__subtitle">
+            Select a document to visualize its knowledge graph
+          </p>
+        </div>
+
+        <div class="kg-controls" id="kgControls">
+          <div class="kg-controls__left">
+            <select class="kg-select" id="kgDocSelect">
+              <option value="">— Select a document —</option>
+            </select>
+            <button class="kg-btn kg-btn--load" id="kgLoadBtn" disabled>
+              Load Graph
+            </button>
+          </div>
+          <div class="kg-controls__right">
+            <div class="kg-stat" id="kgNodeCount">
+              <span class="kg-stat__label">Nodes</span>
+              <span class="kg-stat__value">—</span>
+            </div>
+            <div class="kg-stat" id="kgEdgeCount">
+              <span class="kg-stat__label">Edges</span>
+              <span class="kg-stat__value">—</span>
+            </div>
+            <button
+              class="kg-btn kg-btn--toggle"
+              id="kgPhysicsBtn"
+              title="Toggle physics simulation"
+            >
+              ⚡ Physics
+            </button>
+            <button
+              class="kg-btn kg-btn--toggle"
+              id="kgFitBtn"
+              title="Fit graph to view"
+            >
+              🔍 Fit
+            </button>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="kg-legend" id="kgLegend"></div>
+
+        <!-- Graph canvas -->
+        <div class="kg-canvas-wrapper">
+          <div class="kg-canvas" id="kgCanvas">
+            <div class="kg-placeholder" id="kgPlaceholder">
+              <div class="kg-placeholder__icon">🕸️</div>
+              <p>
+                Select a document and click <strong>Load Graph</strong> to
+                explore its knowledge graph
+              </p>
+            </div>
+          </div>
+          <div class="kg-loading" id="kgLoading">
+            <div class="spinner-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <p>Loading knowledge graph...</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="app-footer">SRIP Research Project</footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
