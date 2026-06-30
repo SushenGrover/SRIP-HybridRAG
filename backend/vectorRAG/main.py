@@ -8,8 +8,6 @@ import shutil
 import time
 import uuid
 
-import faiss
-import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, conint
@@ -60,31 +58,11 @@ _stores: dict[str, VectorStore] = {}
 # LLM provider (initialised lazily to avoid import-time failures)
 _provider: LLMProvider | None = None
 
-# Advanced retriever (lazy)
-_retriever = None
-
-
 def _get_provider() -> LLMProvider:
     global _provider
     if _provider is None:
         _provider = get_provider()
     return _provider
-
-
-def _get_retriever():
-    """Lazy-load the advanced retriever (needs Groq + cross-encoder)."""
-    global _retriever
-    if _retriever is None:
-        try:
-            from backend.shared.groq_provider import GroqLLM
-            from backend.shared.retrieval_engine import AdvancedRetriever
-            llm = GroqLLM()
-            _retriever = AdvancedRetriever(groq_llm=llm)
-            logger.info("Advanced retriever initialised (Groq + cross-encoder)")
-        except Exception as e:
-            logger.warning("Advanced retriever not available: %s — using basic retrieval", e)
-            _retriever = None
-    return _retriever
 
 
 def _load_docs_meta() -> dict:
@@ -219,7 +197,7 @@ async def upload_document(file: UploadFile = File(...)):
 
 @app.post("/api/query", response_model=QueryResponse)
 async def query_document(req: QueryRequest):
-    """Query an uploaded document using Vector RAG with advanced retrieval."""
+    """Query an uploaded document using basic Vector RAG (simple similarity search)."""
     if not req.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
 
@@ -232,55 +210,8 @@ async def query_document(req: QueryRequest):
 
     t0 = time.time()
 
-    # Try advanced retrieval pipeline (decompose → fuse → HyDE → RRF → rerank)
-    retriever = _get_retriever()
-    if retriever and store.index is not None:
-        try:
-            from backend.shared.retrieval_engine import RetrievedChunk
-
-            # Wrap the vector store's raw search for the retriever
-            def search_fn(query_vec: np.ndarray, top_k: int):
-                scores, indices = store.index.search(query_vec, min(top_k, store.index.ntotal))
-                results = []
-                for score, idx in zip(scores[0], indices[0]):
-                    if idx == -1:
-                        continue
-                    chunk = store.chunks[idx]
-                    results.append(SearchResult(
-                        text=chunk["text"],
-                        metadata=chunk["metadata"],
-                        score=float(score),
-                    ))
-                return results
-
-            def embed_fn(text: str) -> np.ndarray:
-                return provider.embed_query(text)
-
-            advanced_results = retriever.retrieve(
-                query=req.query,
-                search_fn=search_fn,
-                embed_query_fn=embed_fn,
-                top_k=req.top_k,
-                initial_k=req.top_k * 3,
-            )
-
-            # Convert back to SearchResult for the RAG chain
-            results = [
-                SearchResult(
-                    text=r.text,
-                    metadata=r.metadata,
-                    score=r.score,
-                )
-                for r in advanced_results
-            ]
-            logger.info("Advanced retrieval returned %d results", len(results))
-
-        except Exception as e:
-            logger.warning("Advanced retrieval failed, falling back to basic: %s", e)
-            results = store.search(req.query, provider, top_k=req.top_k)
-    else:
-        # Basic retrieval fallback
-        results = store.search(req.query, provider, top_k=req.top_k)
+    # Simple retrieval — basic vector similarity search
+    results = store.search(req.query, provider, top_k=req.top_k)
 
     # Generate answer
     doc_name = docs_meta[req.document_id].get("filename", req.document_id)

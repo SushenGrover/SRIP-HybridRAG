@@ -274,7 +274,7 @@ async def upload_and_build_graph(file: UploadFile = File(...)):
 
 @app.post("/api/graph/query", response_model=GraphQueryResponse)
 async def query_document_graph(req: GraphQueryRequest):
-    """Query a document using the GraphRAG pipeline with advanced retrieval."""
+    """Query a document using the basic GraphRAG pipeline."""
     if not req.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
 
@@ -287,36 +287,8 @@ async def query_document_graph(req: GraphQueryRequest):
     # Step 1: Extract entities from the query
     entities = extract_query_entities(req.query)
 
-    # Step 1b: Expand entities using advanced retrieval (decomposition + fusion)
-    try:
-        from backend.shared.groq_provider import GroqLLM
-        from backend.shared.retrieval_engine import AdvancedRetriever
-        retriever = AdvancedRetriever(groq_llm=GroqLLM())
-
-        # Get expanded queries for broader entity coverage
-        expanded_queries = retriever.expand_query_for_graph(req.query)
-        # Extract entities from each expanded query
-        all_entities = list(entities)
-        for eq in expanded_queries:
-            if eq != req.query:
-                extra = extract_query_entities(eq)
-                all_entities.extend(e for e in extra if e not in all_entities)
-        entities = all_entities[:12]  # Cap at 12 entities
-        logger.info("Advanced entity expansion: %d entities", len(entities))
-    except Exception as e:
-        logger.warning("Advanced entity expansion not available: %s", e)
-
     # Step 2: Query the knowledge graph
     graph_triplets = query_graph(req.document_id, entities, max_hops=2)
-
-    # Step 2b: Rerank triplets using cross-encoder
-    try:
-        from backend.shared.retrieval_engine import CrossEncoderReranker
-        reranker = CrossEncoderReranker()
-        graph_triplets = reranker.rerank_triplets(req.query, graph_triplets, top_k=30)
-        logger.info("Cross-encoder reranked %d triplets", len(graph_triplets))
-    except Exception as e:
-        logger.warning("Cross-encoder reranking not available: %s", e)
 
     # Step 3: Generate answer from graph context
     doc_name = docs_meta[req.document_id].get("filename", req.document_id)

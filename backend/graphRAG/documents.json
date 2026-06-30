@@ -6,5 +6,13 @@
     "stored_in_neo4j": 553,
     "processing_time_s": 252.4,
     "uploaded_at": "2026-06-25 04:17:17"
+  },
+  "ceb7c087eb8c": {
+    "filename": "EDLHLGA23009V012223.pdf",
+    "num_chunks": 9,
+    "num_triplets": 62,
+    "stored_in_neo4j": 62,
+    "processing_time_s": 78.4,
+    "uploaded_at": "2026-06-29 23:52:38"
   }
 }
