@@ -76,23 +76,23 @@ A final **HybridRAG** orchestrator queries both engines concurrently, fuses the 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Frontend (HTML/JS/CSS)                   │
-│                    Upload PDFs · Query · Visualise KG            │
-└────────────┬──────────────────┬──────────────────┬──────────────┘
-             │                  │                  │
+│                    Upload PDFs · Query · Visualise KG           │
+└────────────┬─────────────────┬──────────────────┬───────────────┘
+             │                 │                  │
         ┌────▼────┐       ┌────▼────┐       ┌─────▼─────┐
         │ Vector  │       │  Graph  │       │  Hybrid   │
         │  RAG    │       │   RAG   │       │   RAG     │
         │ :8000   │       │  :8001  │       │  :8002    │
         └────┬────┘       └────┬────┘       └─────┬─────┘
-             │                  │                  │
+             │                 │                  ▼
       ┌──────▼──────┐   ┌──────▼──────┐    Combines both
       │    FAISS    │   │   Neo4j     │    answers via LLM
       │ Vector Index│   │ Knowledge   │
       │ (cosine sim)│   │   Graph     │
       └──────┬──────┘   └──────┬──────┘
-             │                  │
-      ┌──────▼──────────────────▼──────┐
-      │     Shared Retrieval Engine     │
+             │                 │
+      ┌──────▼─────────────────▼───────┐
+      │     Shared Retrieval Engine    │
       │  Decompose → Fuse → HyDE →     │
       │  RRF Merge → Cross-Encoder     │
       └────────────────────────────────┘
