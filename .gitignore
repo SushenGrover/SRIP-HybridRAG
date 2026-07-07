@@ -1,1 +1,40 @@
+# ── Environment & Secrets ──
 .env
+.env.*
+!.env.example
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+venv/
+.venv/
+env/
+
+# ── FAISS indices (large binary files, regeneratable) ──
+backend/vectorRAG/indices/
+backend/vectorRAG/uploads/
+
+# ── IDE / Editor ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── OS ──
+desktop.ini
+*.lnk
+
+# ── Jupyter ──
+.ipynb_checkpoints/
+
+# ── Misc ──
+*.log
